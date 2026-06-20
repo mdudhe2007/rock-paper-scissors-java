@@ -3,31 +3,13 @@ import java.util.Scanner;
 
 public class Main {
 
-    static int wins = 0, losses = 0, ties = 0;
     static final String[] CHOICES = {"rock", "paper", "scissors"};
-    static final Random random = new Random();
-    static final Scanner scanner = new Scanner(System.in);
+    static int wins = 0, losses = 0, ties = 0;
 
     public static void main(String[] args) {
-        showWelcome();
-
-        System.out.println("\n  Press ENTER to start...");
-        scanner.nextLine();
-
-        boolean playing = true;
-        while (playing) {
-            playRound();
-            System.out.print("\n  Play again? (yes / no): ");
-            String again = scanner.nextLine().trim().toLowerCase();
-            playing = again.equals("yes") || again.equals("y");
-        }
-
-        showFinalScore();
-        scanner.close();
-    }
-
-    static void showWelcome() {
-        System.out.println("""
+        Scanner scanner = new Scanner(System.in);
+        Random random = new Random();
+            System.out.println("""
 
 ██████╗  ██████╗  ██████╗██╗  ██╗
 ██╔══██╗██╔═══██╗██╔════╝██║ ██╔╝
@@ -51,72 +33,45 @@ public class Main {
 ╚══════╝ ╚═════╝╚═╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝
 
 """);
-        System.out.println("  Type  rock,  paper,  or  scissors  to play.");
-        System.out.println("  Type  quit  at any time to exit.");
-    }
 
-    static void playRound() {
-        System.out.println("\n" + "─".repeat(52));
-        System.out.print("  Your choice  ▶  ");
-        String playerInput = scanner.nextLine().trim().toLowerCase();
+        System.out.println("Rock, Paper, Scissors! Type 'quit' to stop.");
 
-        if (playerInput.equals("quit") || playerInput.equals("q")) {
-            showFinalScore();
-            System.exit(0);
+        while (true) {
+            System.out.print("\nYour choice (rock/paper/scissors): ");
+            String player = scanner.nextLine().trim().toLowerCase();
+
+            if (player.equals("quit")) break;
+
+            if (!player.equals("rock") && !player.equals("paper") && !player.equals("scissors")) {
+                System.out.println("Invalid choice, try again.");
+                continue;
+            }
+
+            String computer = CHOICES[random.nextInt(3)];
+            System.out.println("Computer chose: " + computer);
+
+            if (player.equals(computer)) {
+                System.out.println("It's a tie!");
+                ties++;
+            } else if (beats(player, computer)) {
+                System.out.println("You win!");
+                wins++;
+            } else {
+                System.out.println("You lose!");
+                losses++;
+            }
+
+            System.out.printf("Score - Wins: %d, Losses: %d, Ties: %d%n", wins, losses, ties);
         }
 
-        if (!isValidChoice(playerInput)) {
-            System.out.println("   Invalid! Please type: rock, paper, or scissors.");
-            return;
-        }
-
-        String computerChoice = CHOICES[random.nextInt(3)];
-
-        System.out.println();
-        System.out.println("  You       ➜  " + capitalize(playerInput));
-        System.out.println("  Computer  ➜  " + capitalize(computerChoice));
-        System.out.println();
-
-        String result = getResult(playerInput, computerChoice);
-
-        switch (result) {
-            case "win"  -> { System.out.println("   You WIN!"); wins++; }
-            case "lose" -> { System.out.println("   You LOSE."); losses++; }
-            case "tie"  -> { System.out.println("   It's a TIE!"); ties++; }
-        }
-
-        System.out.println();
-        System.out.printf("  Score  :  Wins: %d   Losses: %d   Ties: %d%n", wins, losses, ties);
-        System.out.println("─".repeat(52));
+        System.out.println("\nFinal Score - Wins: " + wins + ", Losses: " + losses + ", Ties: " + ties);
+        System.out.println("Thanks for playing!");
+        scanner.close();
     }
 
-    static boolean isValidChoice(String input) {
-        for (String choice : CHOICES) {
-            if (choice.equals(input)) return true;
-        }
-        return false;
-    }
-
-    static String getResult(String player, String computer) {
-        if (player.equals(computer)) return "tie";
-        if ((player.equals("rock")     && computer.equals("scissors")) ||
-            (player.equals("scissors") && computer.equals("paper"))    ||
-            (player.equals("paper")    && computer.equals("rock")))
-            return "win";
-        return "lose";
-    }
-
-    static String capitalize(String s) {
-        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
-    }
-
-    static void showFinalScore() {
-        System.out.println("\n" + "═".repeat(52));
-        System.out.println("  FINAL SCORE");
-        System.out.println("═".repeat(52));
-        System.out.printf("  Wins: %-6d  Losses: %-6d  Ties: %d%n", wins, losses, ties);
-        System.out.println("═".repeat(52));
-        System.out.println("  Thanks for playing!  Goodbye.");
-        System.out.println("═".repeat(52));
+    static boolean beats(String a, String b) {
+        return (a.equals("rock") && b.equals("scissors"))
+            || (a.equals("scissors") && b.equals("paper"))
+            || (a.equals("paper") && b.equals("rock"));
     }
 }
